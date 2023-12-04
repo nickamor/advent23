@@ -1,78 +1,66 @@
-debug = False
-# debug = True
+
+def read_file(filename):
+    with open(filename, 'r') as f:
+        return list(filter(lambda l: len(l) > 0, f.read().split("\n")))
 
 
-def read_lines(filename):
-    with open(filename, "r") as file:
-        return list(filter(is_empty, map(remove_break, file.readlines())))
+def extract_values(line):
+    return list(filter(str.isdigit, line))
 
 
-def is_empty(line):
-    return len(line) > 0
-
-
-def remove_break(line):
-    return line.replace("\n", "")
-
-
-def debug_print(string):
-    if debug == True:
-        print(string)
-
-
-def replace_words(line):
-    digit_words = {
-        "one": "1",
-        "two": "2",
-        "three": "3",
-        "four": "4",
-        "five": "5",
-        "six": "6",
-        "seven": "7",
-        "eight": "8",
-        "nine": "9",
+def get_word_value(str):
+    words = {
+        'one': '1',
+        'two': '2',
+        'three': '3',
+        'four': '4',
+        'five': '5',
+        'six': '6',
+        'seven': '7',
+        'eight': '8',
+        'nine': '9',
     }.items()
-
-    for i in range(len(line)):
-        substr = line[i:]
-        for word, digit in digit_words:
-            if substr.find(word) == 0:
-                v = ""
-                v += line[:i]
-                v += substr.replace(word, digit)
-                return replace_words(v)
-
-    return line
+    for key, value in words:
+        if str.startswith(key):
+            return value
 
 
-def get_digits(line):
-    return list(filter(str.isdigit, replace_words(line)))
+def extract_values_map(line):
+    values = []
+    for pos, char in enumerate(line):
+        if char.isdigit():
+            values.append(char)
+            continue
+        value = get_word_value(line[pos:])
+        if value != None:
+            values.append(value)
+            continue
+    return values
 
 
-def extract_value(line):
-    line = replace_words(line)
-    line = get_digits(line)
-    return int(line[0] + line[-1])
+def sum(numbers):
+    s = 0
+    for n in numbers:
+        s += n
+    return s
 
 
-def main(filename="./day01/input"):
-    lines = read_lines(filename)
-    sum = 0
+def main(filename="./day01/test1"):
+    lines = read_file(filename)
 
-    debug_print("line,with_digits,only_digits,value")
-
+    easy_values = []
     for line in lines:
-        with_digits = replace_words(line)
-        only_digits = get_digits(with_digits)
-        value = extract_value(line)
+        values = extract_values(line)
+        if (len(values) > 0): # the simple approach fails on test2
+            easy_values.append(int(values[0] + values[-1]))
 
-        debug_print(f"{line},{with_digits},{''.join(only_digits)},{value}")
+    hard_values = []
+    for line in lines:
+        values = extract_values_map(line)
+        hard_values.append(int(values[0] + values[-1]))
 
-        sum += value
-
-    debug_print("\n")
-
-    print(sum)
-
+    print(f"{sum(easy_values)}, {sum(hard_values)}")
 
 main()
+main("./day01/test2")
+main("./day01/input")

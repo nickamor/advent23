@@ -16,7 +16,7 @@ def remove_break(line):
 
 def parse_input(line):
     m = re.search(r"(?:Card \s*(\d+)): ((?:\s*\d+)+) \| ((?:\s*\d+)+)", line)
-    card_num = m.groups()[0]
+    card_num = int(m.groups()[0])
     all_winning = m.groups()[1]
     winning = list(map(int, re.findall(r"\s*(\d+)\s*", all_winning)))
     all_numbers = m.groups()[2]
@@ -31,13 +31,19 @@ def calculate_total_score(input):
     return sum
 
 
-def calculate_score(line):
+def winning_numbers(line):
     [card, winning, numbers] = line
-    score = 0
+    win=[]
     for number in numbers:
         if number in winning:
-            print(f"card {card} winning number {number}")
-            score = (score * 2 if score != 0 else 1)
+            win.append(number)
+    return win
+
+
+def calculate_score(line):
+    score = 0
+    for number in winning_numbers(line):
+        score = (score * 2 if score != 0 else 1)
 
     return score
 
@@ -49,12 +55,31 @@ def parse_all_input(lines):
     return input
 
 
+def count_cards(input):
+    cards={}
+    for line in input:
+        [card, winning, numbers] = line
+        cards[card] = 1
+    
+    for line in input:
+        [card, winning, numbers] = line
+        c = cards[card]
+        wins = len(winning_numbers(line))
+        for i in range(card + 1, card + 1 + wins):
+            cards[i] += c
+
+    total_cards=0
+    for key, value in cards.items():
+        total_cards += value
+
+    return total_cards
+
+
 def main(filename="./day04/test"):
     lines = read_file(filename)
     input = parse_all_input(lines)
 
-    print(input)
-    print(calculate_total_score(input))
+    print(f"{calculate_total_score(input)}, {count_cards(input)}")
 
 
 main()

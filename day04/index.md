@@ -9,3 +9,4 @@ https://adventofcode.com/2023/day/4
 * didn't need to change too much, thankfully
 
 * there's a cleaner, math-y solution in here somewhere. i just counted lines (each winning line boosts the value of following lines by the number of times it itself has been boosted)
+  * or perhaps a recursive method? this solution is essentially an unrolled recursive lookup (n = n-1, n>=1 = 1 etc.)

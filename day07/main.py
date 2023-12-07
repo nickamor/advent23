@@ -31,9 +31,24 @@ label_strength = {
     "2": "M",
 }
 
+label_strength_joker = {
+    "A": "A",
+    "K": "B",
+    "Q": "C",
+    "T": "E",
+    "9": "F",
+    "8": "G",
+    "7": "H",
+    "6": "I",
+    "5": "J",
+    "4": "K",
+    "3": "L",
+    "2": "M",
+    "J": "X",
+}
 
-def hand_ranking(line):
-    [hand, _wager] = line
+
+def get_hand_type(hand):
     counts = {
         "A": 0,
         "K": 0,
@@ -49,40 +64,123 @@ def hand_ranking(line):
         "3": 0,
         "2": 0,
     }
-    base_score = ""
     for card in hand:
         counts[card] += 1
-        base_score += label_strength[card]
 
-    hand_type = ""
     counted = sorted(counts.items(), key=lambda i: -i[1])
     if counted[0][1] == 5:
         # Five of a kind
-        hand_type = "A"
+        return "A"
     elif counted[0][1] == 4:
         # Four of a kind
-        hand_type = "B"
+        return "B"
     elif counted[0][1] == 3 and counted[1][1] == 2:
         # Full house
-        hand_type = "C"
+        return "C"
     elif counted[0][1] == 3:
         # Three of a kind
-        hand_type = "D"
+        return "D"
     elif counted[0][1] == 2 and counted[1][1] == 2:
         # Two pair
-        hand_type = "E"
+        return "E"
     elif counted[0][1] == 2:
         # One pair
-        hand_type = "F"
+        return "F"
     else:
         # High card
-        hand_type = "G"
+        return "G"
 
-    return hand_type + base_score
+
+def get_hand_type_jorker(hand):
+    counts = {
+        "A": 0,
+        "K": 0,
+        "Q": 0,
+        "T": 0,
+        "9": 0,
+        "8": 0,
+        "7": 0,
+        "6": 0,
+        "5": 0,
+        "4": 0,
+        "3": 0,
+        "2": 0,
+    }
+    counts_j = {
+        "A": 0,
+        "K": 0,
+        "Q": 0,
+        "T": 0,
+        "9": 0,
+        "8": 0,
+        "7": 0,
+        "6": 0,
+        "5": 0,
+        "4": 0,
+        "3": 0,
+        "2": 0,
+    }
+    for card in hand:
+        if card == "J":
+            for c in counts_j:
+                counts_j[c] += 1
+        else:
+            counts[card] += 1
+            counts_j[card] += 1
+
+    counted = sorted(counts.items(), key=lambda i: -i[1])
+    counted_j = sorted(counts_j.items(), key=lambda i: -i[1])
+    if counted_j[0][1] == 5:
+        # Five of a kind
+        return "A"
+    elif counted_j[0][1] == 4:
+        # Four of a kind
+        return "B"
+    elif counted_j[0][1] == 3 and counted_j[1][1] == 2:
+        # Full house
+        return "C"
+    elif counted_j[0][1] == 3:
+        # Three of a kind
+        return "D"
+    elif counted_j[0][1] == 2 and counted_j[1][1] == 2:
+        # Two pair
+        return "E"
+    elif counted_j[0][1] == 2:
+        # One pair
+        return "F"
+    else:
+        # High card
+        return "G"
+
+
+def hand_ranking(line):
+    [hand, _wager] = line
+    base_score = ""
+    for card in hand:
+        base_score += label_strength[card]
+
+    return get_hand_type(hand) + base_score
+
+
+def hand_ranking_jokerfied(line):
+    [hand, _wager] = line
+    base_score = ""
+    for card in hand:
+        base_score += label_strength[card]
+
+    return get_hand_type_jorker(hand) + base_score
 
 
 def score_ranking(input):
     s = sorted(input, key=hand_ranking, reverse=True)
+    out = []
+    for i, hand in enumerate(s):
+        out.append((hand, (i + 1) * hand[1]))
+    return out
+
+
+def score_ranking_jk(input):
+    s = sorted(input, key=hand_ranking_jokerfied, reverse=True)
     out = []
     for i, hand in enumerate(s):
         out.append((hand, (i + 1) * hand[1]))
@@ -101,6 +199,7 @@ def main(filename="./day07/test"):
     input = parse_input(lines)
     # print(list(map(lambda l: (l, hand_ranking(l)), input)))
     print(reduce_total(score_ranking(input)))
+    print(reduce_total(score_ranking_jk(input)))
 
 
 main()

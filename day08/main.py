@@ -1,4 +1,5 @@
 import re
+import functools
 
 
 def read_file(filename):
@@ -15,26 +16,69 @@ def parse_lines(lines):
     return (directions, paths)
 
 
-def path_length(start, finish, input):
-    steps = 0
-    current = start
+def find_next_step(current, steps, input):
     [directions, paths] = input
+    direction = directions[steps % len(directions)]
+    return paths[current][direction]
+
+
+def traverse_path(start, finish, input):
+    current = start
     path = []
-    while current != finish:
-        direction = directions[steps % len(directions)]
-        next = paths[current][direction]
-        path.append(f"{current} {direction} {next}")
+    while re.search(finish, current) == None:
+        next = find_next_step(current, len(path), input)
+        path.append(f"{current} -> {next}")
         current = next
-        steps += 1
-    return steps
+    return path
 
 
-def main(filename="./day08/test"):
+def ghost_done(finish, currents):
+    for key, value in currents.items():
+        if re.search(finish, value) == None:
+            return False
+    return True
+
+
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+
+def lcm(a, b):
+    return a * b // gcd(a, b)
+
+
+def lcmm(args):
+    return functools.reduce(lcm, args)
+
+
+def ghost_traverse(start, finish, input):
+    [directions, paths] = input
+    currents = {}
+    steps = 0
+    for key in paths.keys():
+        if re.search(start, key) != None:
+            currents[key] = key
+    # while not ghost_done(finish, currents):
+    #     for k, v in currents.items():
+    #         currents[k] = find_next_step(v, steps, input)
+    #     steps += 1
+
+    path_lengths = {}
+    for key in currents.keys():
+        path_lengths[key] = len(traverse_path(key, finish, input))
+
+    return lcmm(path_lengths.values())
+
+
+def main(filename="./day08/test2"):
     lines = read_file(filename)
-    start = "AAA"
-    end = "ZZZ"
     input = parse_lines(lines)
-    print(path_length(start, end, input))
+    # path = traverse_path("AAA", "ZZZ", input)
+    paths = ghost_traverse("..A", "..Z", input)
+    # print(len(path))
+    print(paths)
 
 
 main()

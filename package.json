@@ -1,0 +1,9 @@
+{
+  "name": "advent23",
+  "version": "1.0.0",
+  "scripts": {
+    "day15": "node ./day15/main.js"
+  },
+  "author": "@nickamor",
+  "license": "ISC"
+}
